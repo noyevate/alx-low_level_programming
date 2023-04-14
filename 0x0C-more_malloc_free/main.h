@@ -15,4 +15,5 @@ void errors(void);
 int _strlen(char *s);
 int is_digit(char *s);
 
-#
+#endif
+
