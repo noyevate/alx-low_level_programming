@@ -1,65 +1,89 @@
 #include "lists.h"
-/**
- * free_listp - this function frees a linked list
- * @head: contains head of a list.
- * Return: no return.
- */
-void free_listp(listp_t **head)
-{
-	listp_t *temp, *curr;
+#include <stdio.h>
 
-	if (head != NULL)
+size_t looped_listint_len(const listint_t *head);
+size_t print_listint_safe(const listint_t *head);
+
+/**
+ * looped_listint_len - function reads the number of unique nodes
+ * in a loop listint_t linked list.
+ * @head: contans pointer to the head of the listint_t to check.
+ *
+ * Return: If the list is not looped - 0.
+ * Otherwise - the number of unique nodes in the list.
+ */
+size_t looped_listint_len(const listint_t *head)
+{
+	const listint_t *tortoise, *hare;
+	size_t nodes = 1;
+
+	if (head == NULL || head->next == NULL)
+		return (0);
+
+	tortoise = head->next;
+	hare = (head->next)->next;
+
+	while (hare)
 	{
-		curr = *head;
-		while ((temp = curr) != NULL)
+		if (tortoise == hare)
 		{
-			curr = curr->next;
-			free(temp);
+			tortoise = head;
+			while (tortoise != hare)
+			{
+				nodes++;
+				tortoise = tortoise->next;
+				hare = hare->next;
+			}
+
+			tortoise = tortoise->next;
+			while (tortoise != hare)
+			{
+				nodes++;
+				tortoise = tortoise->next;
+			}
+
+			return (nodes);
 		}
-		*head = NULL;
+
+		tortoise = tortoise->next;
+		hare = (hare->next)->next;
 	}
+
+	return (0);
 }
 
 /**
- * print_listint_safe - this function prints a linked list.
- * @head: contains the head of a list.
- * Return: rwill return the values of nodes in the list.
+ * print_listint_safe - this function will print a listint_t list safely.
+ * @head: contains a pointer to the head of the listint_t list.
+ *
+ * Return: will return the number of nodes in the list.
  */
 size_t print_listint_safe(const listint_t *head)
 {
-	size_t numNodes = 0;
-	listp_t *ptr, *newNode, *add;
+	size_t nodes, index = 0;
 
-	ptr = NULL;
-	while (head != NULL)
+	nodes = looped_listint_len(head);
+
+	if (nodes == 0)
 	{
-		newNode = malloc(sizeof(listp_t));
-
-		if (newNode == NULL)
-			exit(98);
-
-		newNode->p = (void *)head;
-		newNode->next = ptr;
-		ptr = newNode;
-
-		add = ptr;
-
-		while (add->next != NULL)
+		for (; head != NULL; nodes++)
 		{
-			add = add->next;
-			if (head == add->p)
-			{
-				printf("-> [%p] %d\n", (void *)head, head->n);
-				free_listp(&ptr);
-				return (numNodes);
-			}
+			printf("[%p] %d\n", (void *)head, head->n);
+			head = head->next;
 		}
-
-		printf("[%p] %d\n", (void *)head, head->n);
-		head = head->next;
-		numNodes++;
 	}
 
-	free_listp(&ptr);
-	return (numNodes);
+	else
+	{
+		for (index = 0; index < nodes; index++)
+		{
+			printf("[%p] %d\n", (void *)head, head->n);
+			head = head->next;
+		}
+
+		printf("-> [%p] %d\n", (void *)head, head->n);
+	}
+
+	return (nodes);
 }
+
